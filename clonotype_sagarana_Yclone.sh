@@ -45,7 +45,7 @@ do
 
 	echo "Some console message 2"
 
-	python3 /Users/joaogervasio/Documents/YClon.py "$pasta"/"${sample[0]}"_db-pass_unique.tsv
+	python3 /Users/joaogervasio/Documents/YClon.py --input "$pasta"/"${sample[0]}"_db-pass_unique.tsv --low_memory
 	
 
 	# gzip "$pasta"/R1.fastq
