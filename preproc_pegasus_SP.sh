@@ -1,22 +1,22 @@
 #!/bin/bash
-#SBATCH -J rep_pipe_SP
+#SBATCH -J rep_pipe
 #SBATCH --time=3-27:00:00
 #SBATCH --mem=32000
 #SBATCH --ntasks=1
 #S BATCH --gres=gpu:1 
-#S BATCH --gpus-per-task=1
-#SBATCH --cpus-per-task=12
+#SBATCH --cpus-per-task=16
 #SBATCH --nodes=1
 #S BATCH --chdir=/homes/gervasio/
 #SBATCH --mail-user=stat0429@ox.ac.uk
 #SBATCH --mail-type=ALL
 #SBATCH --mail-type=begin
 #SBATCH --mail-type=end
-#SBATCH --partition=high-opig-cpu
-#SBATCH --clusters=swan
-#SBATCH -w naga04.cpu.stats.ox.ac.uk
-#SBATCH --output=/vols/opig/users/gervasio/rep_pipe_SP_log.out
-#SBATCH --error=/vols/opig/users/gervasio/rep_pipe_SP_oops_did_not_work.out
+#SBATCH --partition=low-cpu
+#SBATCH --clusters=srf_cpu_01
+#SBATCH -w muscovy.stats.ox.ac.uk
+#SBATCH --output=/vols/opig/users/gervasio/SP_changeo.out
+#SBATCH --error=/vols/opig/users/gervasio/SP_changeo.err
+
 
 source /vols/opig/users/gervasio/local/bin/activate
 
@@ -39,11 +39,14 @@ do
 
 	# python3 /vols/opig/users/gervasio/covidao/local_usr/MaskPrimers.py score -s "$pasta"/"${sample[0]}"_quality-pass.fastq -p /vols/opig/users/gervasio/covidao/primers_seq.fasta --outdir "$pasta" --outname "${sample[0]}" --mode tag --fasta --log "${sample[0]}"_primer.log --failed
 
-	python3 /vols/opig/users/gervasio/covidao/local_usr/AssignGenes.py igblast -s "$pasta"/"${sample[0]}"_primers-pass.fasta -b /vols/opig/users/gervasio/covidao/local_usr/igblast --organism human --loci ig --format blast --exec /vols/opig/users/gervasio/covidao/local_usr/igblastn --outdir "$pasta" --nproc 24
+	# python3 /vols/opig/users/gervasio/covidao/local_usr/AssignGenes.py igblast -s "$pasta"/"${sample[0]}"_primers-pass.fasta -b /vols/opig/users/gervasio/covidao/local_usr/igblast --organism human --loci ig --format blast --exec /vols/opig/users/gervasio/covidao/local_usr/igblastn --outdir "$pasta" --nproc 24
 
-	python3 /vols/opig/users/gervasio/covidao/local_usr/MakeDb.py igblast -s "$pasta"/"${sample[0]}"_primers-pass.fasta -i "$pasta"/"${sample[0]}"_primers-pass_igblast.fmt7 --format airr -r /vols/opig/users/gervasio/covidao/imgt/human/vdj --outdir "$pasta" --outname "${sample[0]}" --extended 
+	# python3 /vols/opig/users/gervasio/covidao/local_usr/MakeDb.py igblast -s "$pasta"/"${sample[0]}"_primers-pass.fasta -i "$pasta"/"${sample[0]}"_primers-pass_igblast.fmt7 --format airr -r /vols/opig/users/gervasio/covidao/imgt/human/vdj --outdir "$pasta" --outname "${sample[0]}" --extended 
 	
-	rm "$pasta"/"${sample[0]}"_primers-pass_igblast.fmt7
+	# rm "$pasta"/"${sample[0]}"_primers-pass_igblast.fmt7
+	gzip -d "$pasta"/"${sample[0]}"_db-pass.tsv.gz
+
+	DefineClones.py -d "$pasta"/"${sample[0]}"_db-pass.tsv --vf v_call --model ham --norm len --dist 0.1 --format airr --nproc 16 --outname "${sample[0]}" --outdir "$pasta"
 
 
 
