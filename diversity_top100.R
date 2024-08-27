@@ -2,6 +2,7 @@ library("dplyr")
 library('tidyverse')
 library("tibble")
 library("dplyr")
+library("vegan")
 
 
 clonotyped <- list.files(path="path/to/tsv_MiAIRR", 
